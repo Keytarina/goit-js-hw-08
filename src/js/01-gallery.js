@@ -6,8 +6,12 @@ const gallery = document.querySelector('.gallery');
 const imageMarkup = createImageMarkup(galleryItems);
 
 gallery.insertAdjacentHTML('beforeend', imageMarkup);
-
 gallery.addEventListener('click', onPhotoClick);
+
+new SimpleLightbox('.gallery a', {
+  captionsData: 'alt',
+  captionDelay: 250,
+});
 
 function createImageMarkup(galleryItems) {
   return galleryItems
@@ -17,7 +21,6 @@ function createImageMarkup(galleryItems) {
                 <a class="gallery__link" href="${original}">
                     <img class="gallery__image" 
                     	src="${preview}" 
-						data-source="${original}"
                     	alt="${description}"
 					/>
                 </a>
@@ -31,22 +34,4 @@ function onPhotoClick(event) {
   if (event.target.nodeName !== 'IMG') {
     return;
   }
-
-  const instance = SimpleLightbox.create(
-    `
-		<div class="modal">
-			<img src="${event.target.dataset.source}">
-		</div>
-	`,
-    {
-      onShow: instance => {
-        document.addEventListener('keydown', event => {
-          if (event.key === 'Escape') {
-            instance.close();
-          }
-        });
-      },
-    }
-  );
-  instance.show();
 }
