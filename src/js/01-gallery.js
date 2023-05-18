@@ -28,10 +28,3 @@ function createImageMarkup(galleryItems) {
     })
     .join('');
 }
-
-function onPhotoClick(event) {
-  event.preventDefault();
-  if (event.target.nodeName !== 'IMG') {
-    return;
-  }
-}

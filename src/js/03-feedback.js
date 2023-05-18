@@ -1,36 +1,53 @@
 import throttle from 'lodash.throttle';
 
+const form = document.querySelector(".feedback-form");
 const email = document.querySelector('input[name="email"]');
 const message = document.querySelector('textarea[name="message"]');
-const key = 'feedback-form-state';
-const data = {};
-// const restoreInput = () =>
+const FORM_STORAGE_KEY = 'feedback-form-state';
 
-const saveEmail = event => {
-  data.email = event.target.value;
-  saveDataToLocalStorage(data);
+const restoreFormFromLocalStorage = () => {
+  if(localStorage.getItem(FORM_STORAGE_KEY)){
+    const serializedState = JSON.parse(localStorage.getItem(FORM_STORAGE_KEY));
+    email.value = serializedState.email;
+    message.value = serializedState.message;
+  }
 };
-const saveMessage = event => {
-  data.message = event.target.value;
-  saveDataToLocalStorage(data);
+restoreFormFromLocalStorage();
+
+const data = {
+  email: email.value || "",
+  message: message.value || ""
 };
 
-const saveDataToLocalStorage = data => {
-  try {
-    const serializedState = JSON.stringify(data);
-    localStorage.setItem(key, serializedState);
-  } catch (error) {
-    console.log('Set state error: ', error.message);
+const saveDataToLocalStorage = event => {
+  if(event.target.name === 'email' || event.target.name === 'message'){
+    data.email = email.value.trim();
+    data.message = message.value.trim();
+    try {
+      localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(data));
+    } catch (error) {
+      console.log('Set state error: ', error.message);
+    };
   }
 };
 
-const restoreFormFromLocalStorage = () => {
-  const сurrentData = localStorage.getItem(key);
-  const serializedState = JSON.parse(сurrentData);
-  email.value = serializedState.email;
-  message.value = serializedState.message;
+const onFormSubmit = event => {
+  event.preventDefault();
+  if(
+    email.value.trim() === '' || message.value.trim() === '') {
+    alert('Всі поля повинні бути заповнені!');
+    return;
+  }
+  console.log(data);
+
+  localStorage.removeItem(FORM_STORAGE_KEY);
+  form.reset();
+  
+  data.email = '';
+  data.message = '';
 };
 
-email.addEventListener('input', throttle(saveEmail, 500));
-message.addEventListener('input', throttle(saveMessage, 500));
-restoreFormFromLocalStorage();
+form.addEventListener('input', throttle(saveDataToLocalStorage, 500));
+form.addEventListener('submit', onFormSubmit);
+
+
